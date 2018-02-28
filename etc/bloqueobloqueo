@@ -1,16 +1,17 @@
 #!/bin/bash
 
-# myOwnFirewall v0.1            
+# myOwnFirewall v0.2            
 #
-# Script para banear IPs
+# Script para banear IPs + Geolocalizar y Bloquear IPs por país
 #
-# Author: Rolando Caldas        
-# http://rolandocaldas.com      
-# 
+# Autor: Rolando Caldas | Ludim Chávez         
+#       
 # https://github.com/rolando-caldas/myOwnFirewall
+# https://github.com/Do0k13/BloqueoBloqueo
 
 BANNED_IPS="/etc/bloqueobloqueo/banlist.txt"
 LOCK="/etc/bloqueobloqueo/.lock"
+BANNED_GEOCODES="/etc/bloqueobloqueo/geocodes.txt"
 
 function banIP {
         if [ -f ${LOCK} ]
@@ -49,7 +50,7 @@ function restartScript {
 }
 
 function showHelp {
-    echo "Uso: bloqueobloqueo {start|stop|restart}"
+    echo "Uso: bloqueobloqueo {start|stop|restart|ban|unban|geoip|geoblock}"
 }
 
 function startScript {
@@ -65,7 +66,12 @@ function startScript {
                         iptables -I INPUT -s $i -j DROP
                         iptables -I OUTPUT -s $i -j DROP
                 done
-
+				
+				for i in `cat $BANNED_GEOCODES`; do
+						iptables -I INPUT -m geoip --src-cc $i -j DROP
+						iptables -I OUTPUT -m geoip --src-cc $i -j DROP
+				done
+						
                 echo "BloqueoBloqueo iniciado"
         fi
 
@@ -78,6 +84,12 @@ function stopScript {
                         iptables -D INPUT -s $i -j DROP
                         iptables -D OUTPUT -s $i -j DROP
                 done
+				
+				for i in `cat BANNED_GEOCODES`; do
+						iptables -D INPUT -m geoip --src-cc $i -j DROP
+						iptables -D OUTPUT -m geoip --src-cc $i -j DROP
+				done
+				
                 rm ${LOCK}
 
                 echo "BloqueoBloqueo detenido"
@@ -118,6 +130,53 @@ function unbanIP {
         else
                 echo "BloqueoBloqueo no se está ejecutando"
         fi
+}  
+
+function geoIP {
+	if [ -f ${LOCK} ]
+	then
+			if [ $# -eq 0 ]
+			then
+					echo "Debes ingresar una dirección IP a localizar"
+			else
+					look= geoiplookup $1
+					echo $look
+			fi
+	else
+			echo "BloqueoBloqueo no se está ejecutando"
+	fi
+					
+}
+
+function geoBlock {
+	if [ -f ${LOCK} ]
+	then
+			if [ $# -eq 0 ]
+			then
+					echo "Debes ingresar una clave de localización válida"
+			else
+					ip=$1
+					exists=false
+					for i in `cat $BANNED_GEOCODES`; do
+	        				if [ $i = $ip ]
+						then
+							exists=true
+						fi
+				        done
+										
+					if [ $exists = false ]
+					then
+						echo $ip >> $BANNED_GEOCODES
+						iptables -I INPUT -m geoip --src-cc $ip -j DROP
+						iptables -I OUTPUT -m geoip --src-cc $ip -j DROP
+						echo "Código ${ip} baneado"
+					else
+						echo "El código ${ip} ya está en la lista"
+					fi
+			fi
+	else
+			echo "BloqueoBloqueo no se está ejecutando"
+	fi
 }
 
 case "$1" in
@@ -141,8 +200,17 @@ case "$1" in
         unbanIP
         exit
         ;;
-    *)
+	geoip)
+		geoIP $2
+		exit
+		;;
+	geoblock)
+		geoBlock $2
+		exit
+		;;
+	*)
         showHelp
         exit
         ;;
 esac
+
