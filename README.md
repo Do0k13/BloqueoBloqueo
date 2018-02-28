@@ -36,6 +36,21 @@ Puedes remover una IP de la lista de baneadas corriendo el siguiente comando:
 /etc/bloqueobloqueo/bloqueobloqueo unban [ip]
 ```
 
+### Geolocalizar una IP
+
+Puedes localizar el país de origen de una dirección IP con el siguiente comando:
+
+```bash
+/etc/bloqueobloqueo/bloqueobloqueo geoip [ip]
+```
+### Bloquear un rango de IP por país
+
+Después de conocer el código de país puedes bloquearlo con el siguiente comando (Cuidado aquí ya que si bloqueas tu propio país o el país de tu proveedor VPS no podrás acceder a tu servidor):
+
+```bash
+/etc/bloqueobloqueo/bloqueobloqueo geoblock [código de país]
+```
+
 ### Detener el Firewall
 
 Puedes detener el Firewall (y remover todas las reglas)si ejecutas el siguinete comando:
@@ -54,4 +69,4 @@ Puedes reiniciar el firewall con el siguiente comando:
 
 ## Version info
 
-La actual es la versión v0.1.1 , una ligera modificación de la original.
+La actual es la versión v0.2 , se agregó en esta versión la geolocalización de país al introducir una dirección IP y la posibilidad de realizar un bloqueo por país, para la instalación de GeoIP se pueden basar en este artículo -> https://juantrucupei.wordpress.com/2015/07/01/iptables-con-geoip/
