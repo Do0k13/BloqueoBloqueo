@@ -69,4 +69,4 @@ Puedes reiniciar el firewall con el siguiente comando:
 
 ## Version info
 
-La actual es la versión v0.2 , se agregó en esta versión la geolocalización de país al introducir una dirección IP y la posibilidad de realizar un bloqueo por país, para la instalación de GeoIP se pueden basar en este artículo -> https://juantrucupei.wordpress.com/2015/07/01/iptables-con-geoip/
+La actual es la versión v0.2 , se agregó en esta versión la geolocalización de país al introducir una dirección IP y la posibilidad de realizar un bloqueo por país, para la instalación de GeoIP se pueden basar en este artículo -> [Iptables con geoIP](https://juantrucupei.wordpress.com/2015/07/01/iptables-con-geoip/)
